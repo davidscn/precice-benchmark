@@ -213,19 +213,34 @@ static void BM_writeScalarDataStringReference(benchmark::State &state)
   }
 }
 
-static void BM_writeScalarDataSingleFunction(benchmark::State &state)
+#ifdef PRECICE_HAS_CUSTOM_API
+static void BM_writeScalarDataStringCopySingleFunction(benchmark::State &state)
+{
+
+  SETUP_DATA(1, "Scalar")
+
+  for (auto _ : state) {
+    for (unsigned int i = 0; i < nv; ++i) {
+      p.writeScalarDataString("MeshA", "Scalar", vids[i], data[i]);
+    }
+  }
+}
+
+static void BM_writeScalarDataStringReferenceSingleFunction(benchmark::State &state)
 {
 
   SETUP_DATA(1, "Scalar")
 
   std::string mesha("MeshA");
   std::string dataScalar("Scalar");
+
   for (auto _ : state) {
     for (unsigned int i = 0; i < nv; ++i) {
       p.writeScalarDataString(mesha, dataScalar, vids[i], data[i]);
     }
   }
 }
+#endif
 
 // Register the function as a benchmark
 BENCHMARK(BM_writeBlockVector);
@@ -240,6 +255,8 @@ BENCHMARK(BM_writeBlockScalarStringReference);
 BENCHMARK(BM_writeScalarData);
 BENCHMARK(BM_writeScalarDataStringCopy);
 BENCHMARK(BM_writeScalarDataStringReference);
-// BENCHMARK(BM_writeScalarData);
-// BENCHMARK(BM_writeScalarDataString);
-// BENCHMARK(BM_writeScalarDataSingleFunction);
+
+#ifdef PRECICE_HAS_CUSTOM_API
+BENCHMARK(BM_writeScalarDataStringCopySingleFunction);
+BENCHMARK(BM_writeScalarDataStringReferenceSingleFunction);
+#endif
